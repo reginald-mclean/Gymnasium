@@ -4,9 +4,9 @@ import os
 import os.path
 import tempfile
 from typing import List, Optional
-
+import numpy as np
 from gymnasium import error, logger
-
+from PIL import Image
 
 class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
@@ -110,7 +110,12 @@ class VideoRecorder:
 
     def capture_frame(self):
         """Render the given `env` and add the resulting frame to the video."""
-        frame = self.env.render()
+        frame = self.env.render(render_mode='rgb_array', camera_name='corner2')
+
+
+        frame = np.rot90(np.rot90(frame))
+
+
         if isinstance(frame, List):
             self.render_history += frame
             frame = frame[-1]

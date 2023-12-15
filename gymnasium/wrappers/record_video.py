@@ -41,6 +41,7 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
         self,
         env: gym.Env,
         video_folder: str,
+        desired: bool,
         episode_trigger: Callable[[int], bool] = None,
         step_trigger: Callable[[int], bool] = None,
         video_length: int = 0,
@@ -106,7 +107,8 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
         self.truncated = False
         self.recorded_frames = 0
         self.episode_id = 0
-
+        self.success = False
+        self.desired = desired
         try:
             self.is_vector_env = self.get_wrapper_attr("is_vector_env")
         except AttributeError:
@@ -117,6 +119,7 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
         observations = super().reset(**kwargs)
         self.terminated = False
         self.truncated = False
+        self.success = False
         if self.recording:
             assert self.video_recorder is not None
             self.video_recorder.recorded_frames = []
@@ -164,7 +167,7 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
             truncateds,
             infos,
         ) = self.env.step(action)
-
+        self.success = int(infos['success']) == 1
         if not (self.terminated or self.truncated):
             # increment steps and episodes
             self.step_id += 1
@@ -200,12 +203,13 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
     def close_video_recorder(self):
         """Closes the video recorder if currently recording."""
         if self.recording:
+            self.recording = False
+            self.recorded_frames = 1
             assert self.video_recorder is not None
-            self.video_recorder.close()
-        self.recording = False
-        self.recorded_frames = 1
+            if self.success == self.desired:
+                self.video_recorder.close()
 
-    def render(self, *args, **kwargs):
+    def render(self, render_mode, camera_name, *args, **kwargs):
         """Compute the render frames as specified by render_mode attribute during initialization of the environment or as specified in kwargs."""
         if self.video_recorder is None or not self.video_recorder.enabled:
             return super().render(*args, **kwargs)
@@ -223,6 +227,7 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
             return super().render(*args, **kwargs)
 
     def close(self):
-        """Closes the wrapper then the video recorder."""
+        """Closes the wrapper then the video recorder. Returns a value denoting whether the video was saved or not"""
         super().close()
         self.close_video_recorder()
+        return self.success == self.desired

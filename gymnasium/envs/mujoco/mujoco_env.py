@@ -415,11 +415,12 @@ class MujocoEnv(BaseMujocoEnv):
         # See https://github.com/openai/gym/issues/1541
         mujoco.mj_rnePostConstraint(self.model, self.data)
 
-    def render(self):
+    def render(self, render_mode=None, camera_id=None, camera_name=None):
         return self.mujoco_renderer.render(
-            self.render_mode, self.camera_id, self.camera_name
+            render_mode if render_mode else self.render_mode,
+            camera_id if camera_name else self.camera_id,
+            camera_name if camera_name else self.camera_name
         )
-
     def close(self):
         if self.mujoco_renderer is not None:
             self.mujoco_renderer.close()
