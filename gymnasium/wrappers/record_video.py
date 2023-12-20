@@ -41,7 +41,6 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
         self,
         env: gym.Env,
         video_folder: str,
-        desired: bool,
         episode_trigger: Callable[[int], bool] = None,
         step_trigger: Callable[[int], bool] = None,
         video_length: int = 0,
@@ -108,7 +107,6 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
         self.recorded_frames = 0
         self.episode_id = 0
         self.success = False
-        self.desired = desired
         try:
             self.is_vector_env = self.get_wrapper_attr("is_vector_env")
         except AttributeError:
@@ -206,8 +204,7 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
             self.recording = False
             self.recorded_frames = 1
             assert self.video_recorder is not None
-            if self.success == self.desired:
-                self.video_recorder.close()
+            self.video_recorder.close()
 
     def render(self, render_mode, camera_name, *args, **kwargs):
         """Compute the render frames as specified by render_mode attribute during initialization of the environment or as specified in kwargs."""
@@ -230,4 +227,3 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
         """Closes the wrapper then the video recorder. Returns a value denoting whether the video was saved or not"""
         super().close()
         self.close_video_recorder()
-        return self.success == self.desired
