@@ -226,5 +226,4 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
     def close(self, idx=None):
         """Closes the wrapper then the video recorder."""
         super().close()
-        print('close recorder')
         self.close_video_recorder(idx)
