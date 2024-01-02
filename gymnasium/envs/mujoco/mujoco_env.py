@@ -24,7 +24,7 @@ else:
     MUJOCO_IMPORT_ERROR = None
 
 
-DEFAULT_SIZE = 480
+DEFAULT_SIZE = 224
 
 
 class BaseMujocoEnv(gym.Env[NDArray[np.float64], NDArray[np.float32]]):
@@ -416,9 +416,10 @@ class MujocoEnv(BaseMujocoEnv):
         mujoco.mj_rnePostConstraint(self.model, self.data)
 
     def render(self, render_mode=None, camera_id=None, camera_name=None):
+        print(render_mode, camera_id, camera_name)
         return self.mujoco_renderer.render(
             render_mode if render_mode else self.render_mode,
-            camera_id if camera_name else self.camera_id,
+            0, # camera_id if camera_id else self.camera_id,
             camera_name if camera_name else self.camera_name
         )
     def close(self):

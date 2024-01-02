@@ -110,9 +110,7 @@ class VideoRecorder:
 
     def capture_frame(self):
         """Render the given `env` and add the resulting frame to the video."""
-        frame = self.env.render(render_mode='rgb_array', camera_name='corner2')
-
-
+        frame = self.env.render(render_mode='rgb_array', camera_id=0)
         frame = np.rot90(np.rot90(frame))
 
 
@@ -143,7 +141,7 @@ class VideoRecorder:
         else:
             self.recorded_frames.append(frame)
 
-    def close(self):
+    def close(self, idx=None):
         """Flush all data to disk and close any open frame encoders."""
         if not self.enabled or self._closed:
             return
@@ -156,10 +154,16 @@ class VideoRecorder:
                 raise error.DependencyNotInstalled(
                     "moviepy is not installed, run `pip install moviepy`"
                 ) from e
-
-            clip = ImageSequenceClip(self.recorded_frames, fps=self.frames_per_sec)
-            moviepy_logger = None if self.disable_logger else "bar"
-            clip.write_videofile(self.path, logger=moviepy_logger)
+            if idx is None:
+                clip = ImageSequenceClip(self.recorded_frames, fps=self.frames_per_sec)
+                moviepy_logger = None if self.disable_logger else "bar"
+                clip.write_videofile(self.path, logger=moviepy_logger)
+            else:
+                clip1 = ImageSequenceClip(self.recorded_frames[:idx], fps=self.frames_per_sec)
+                moviepy_logger = None if self.disable_logger else "bar"
+                clip1.write_videofile(self.path+'_grasp.mp4', logger=moviepy_logger)
+                clip2 = ImageSequenceClip(self.recorded_frames[idx:], fps=self.frames_per_sec)
+                clip2.write_videofile(self.path+'_move.mp4', logger=moviepy_logger)
         else:
             # No frames captured. Set metadata.
             if self.metadata is None:
