@@ -452,9 +452,9 @@ class Wrapper(
         """Uses the :meth:`reset` of the :attr:`env` that can be overwritten to change the returned data."""
         return self.env.reset(seed=seed, options=options)
 
-    def render(self) -> RenderFrame | list[RenderFrame] | None:
+    def render(self, render_mode=None, camera_id=None, camera_name=None) -> RenderFrame | list[RenderFrame] | None:
         """Uses the :meth:`render` of the :attr:`env` that can be overwritten to change the returned data."""
-        return self.env.render()
+        return self.env.render(render_mode=render_mode, camera_id=camera_id, camera_name=camera_name)
 
     def close(self):
         """Closes the wrapper and :attr:`env`."""
