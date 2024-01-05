@@ -10,7 +10,7 @@ from gymnasium.wrappers.monitoring import video_recorder
 def capped_cubic_video_schedule(episode_id: int) -> bool:
     """The default episode trigger.
 
-    This function will trigger recordings at the episode indices 0, 1, 8, 27, ..., :math:`k^3`, ..., 729, 1000, 2000, 3000, ...
+    This function will trigger recordings at the episode indices 0, 1, 8, 27, ..., :math:`k^3`, ..., 512, 600, 800, 1000, 1200, ...
 
     Args:
         episode_id: The episode number
@@ -18,10 +18,10 @@ def capped_cubic_video_schedule(episode_id: int) -> bool:
     Returns:
         If to apply a video schedule number
     """
-    if episode_id < 1000:
+    if episode_id < 600:
         return int(round(episode_id ** (1.0 / 3))) ** 3 == episode_id
     else:
-        return episode_id % 1000 == 0
+        return episode_id % 200 == 0
 
 
 class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
@@ -204,7 +204,7 @@ class RecordVideo(gym.Wrapper, gym.utils.RecordConstructorArgs):
             self.recording = False
             self.recorded_frames = 1
             assert self.video_recorder is not None
-            self.video_recorder.close(idx)
+            self.video_recorder.close()
 
     def render(self, render_mode, camera_name, *args, **kwargs):
         """Compute the render frames as specified by render_mode attribute during initialization of the environment or as specified in kwargs."""
