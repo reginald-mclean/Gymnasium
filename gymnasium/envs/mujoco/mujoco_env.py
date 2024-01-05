@@ -416,6 +416,7 @@ class MujocoEnv(BaseMujocoEnv):
         mujoco.mj_rnePostConstraint(self.model, self.data)
 
     def render(self, render_mode=None, camera_id=None, camera_name=None):
+        camera_name = "corner2"
         return self.mujoco_renderer.render(
             render_mode if render_mode else self.render_mode,
             camera_id if camera_id else self.camera_id,
